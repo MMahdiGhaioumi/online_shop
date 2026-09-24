@@ -32,6 +32,8 @@ INSTALLED_APPS = [
     # Django packages
     'django_cleanup.apps.CleanupConfig',
 
+    # My apps
+    'home.apps.HomeConfig',
 ]
 
 MIDDLEWARE = [
