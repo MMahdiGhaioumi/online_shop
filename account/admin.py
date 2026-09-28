@@ -3,8 +3,15 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from . import models
 from . import forms
 
+class MyAdminSite(admin.AdminSite):
+    site_header = 'فروشگاه اینترنتی'
+    site_title = 'صفحه مدیریت فروشگاه'
+    index_title = 'صفحه مدیریت فروشگاه'
 
-@admin.register(models.User)
+
+my_admin_site = MyAdminSite('my_admin')
+
+
 class UserAdmin(BaseUserAdmin):
     form = forms.UserChangeForm
     add_form = forms.UserCreationForm
@@ -28,3 +35,5 @@ class UserAdmin(BaseUserAdmin):
         })
     ]
     ordering = ()
+
+my_admin_site.register(models.User, UserAdmin)
