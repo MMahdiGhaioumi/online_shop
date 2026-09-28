@@ -1,5 +1,5 @@
 from django.contrib.auth.models import BaseUserManager
-
+from django.contrib.auth import get_user_model
 
 class UserManager(BaseUserManager):
 
@@ -9,6 +9,7 @@ class UserManager(BaseUserManager):
 
         extra_fields['is_staff'] = False
         extra_fields['is_superuser'] = False
+        extra_fields.setdefault('role', get_user_model().Role.CUSTOMER)
 
         user = self.model(
             phone_number=phone_number,
@@ -23,6 +24,7 @@ class UserManager(BaseUserManager):
 
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('role', get_user_model().Role.OWNER)
 
         if not extra_fields.get("is_staff"):
             raise ValueError("Superuser must have is_staff=True.")
