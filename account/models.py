@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
+from django.utils import timezone
 from . import managers
 
 
@@ -16,8 +17,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     role = models.CharField(max_length=50, choices=Role.choices, default=Role.CUSTOMER, verbose_name='نقش')
     birth_date = models.DateField(verbose_name='تاریخ تولد', null=True, blank=True)
     image = models.ImageField(upload_to='images/profile', null=True, blank=True, verbose_name='نگاره شخصی')
-    date_joined = models.DateTimeField(verbose_name='تاریخ عضویت', auto_now=True)
-    last_login = models.DateTimeField(verbose_name='آخرین ورود', auto_now_add=True)
+    date_joined = models.DateTimeField(verbose_name='تاریخ عضویت', default=timezone.now)
     is_staff = models.BooleanField(
         verbose_name='وضعیت کارکنان',
         default=False,
