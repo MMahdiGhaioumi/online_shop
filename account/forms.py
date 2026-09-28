@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django.core.exceptions import ValidationError
 from . import models
+
 
 class UserCreationForm(forms.ModelForm):
     password1 = forms.CharField(
@@ -25,6 +27,23 @@ class UserCreationForm(forms.ModelForm):
             'is_staff': forms.CheckboxInput(attrs={'class': 'form-checkbox'}),
             'is_superuser': forms.CheckboxInput(attrs={'class': 'form-checkbox'}),
         }
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+
+        if password1 and password2 and password2 != password1:
+            raise ValidationError("Passwords don't match", code="password_mismatch")
+        return password2
+
+    def save(self, commit: bool = True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data.get('password1'))
+
+        if commit:
+            user.save()
+
+        return user
 
 
 class UserChangeForm(forms.ModelForm):
