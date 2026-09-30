@@ -6,8 +6,8 @@ from django.contrib.auth import get_user_model
 class Province(models.Model):
     name = models.CharField(
         max_length=128,
-        verbose_name='استان',
         unique=True,
+        verbose_name='استان',
     )
 
     class Meta:
@@ -24,23 +24,27 @@ class City(models.Model):
         max_length=128,
         verbose_name='شهر',
     )
+
     province = models.ForeignKey(
         Province,
         on_delete=models.CASCADE,
-        verbose_name='استان',
         related_name='cities',
+        verbose_name='استان',
     )
 
     class Meta:
         verbose_name = 'شهر'
-        verbose_name_plural = 'شهر‌ها'
+        verbose_name_plural = 'شهرها'
         ordering = ('name',)
+
         constraints = [
             models.UniqueConstraint(
-                fields=['name', 'province'],
+                fields=('name', 'province'),
                 name='unique_city_for_province',
-                violation_error_message='این شهر قبلاً در این استان ثبت شده است.',
-            )
+                violation_error_message=(
+                    'این شهر قبلاً در این استان ثبت شده است.'
+                ),
+            ),
         ]
 
     def __str__(self) -> str:
@@ -51,50 +55,64 @@ class Address(models.Model):
     user = models.ForeignKey(
         get_user_model(),
         on_delete=models.CASCADE,
-        verbose_name='کاربر',
         related_name='addresses',
+        verbose_name='کاربر',
     )
+
     province = models.ForeignKey(
         Province,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        verbose_name='استان',
+        on_delete=models.PROTECT,
         related_name='addresses',
+        verbose_name='استان',
     )
+
     city = models.ForeignKey(
         City,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        verbose_name='شهر',
+        on_delete=models.PROTECT,
         related_name='addresses',
+        verbose_name='شهر',
     )
+
     postal_code = models.CharField(
         max_length=10,
-        verbose_name='کدپستی'
+        verbose_name='کد پستی',
     )
-    body = models.TextField(verbose_name='آدرس کامل')
-    is_default = models.BooleanField(verbose_name='آدرس پیشفرض', default=False)
+
+    body = models.TextField(
+        verbose_name='آدرس کامل',
+    )
+
+    is_default = models.BooleanField(
+        default=False,
+        verbose_name='آدرس پیش‌فرض',
+    )
 
     class Meta:
         verbose_name = 'آدرس'
         verbose_name_plural = 'آدرس‌ها'
+
         constraints = [
             models.UniqueConstraint(
                 fields=('user',),
                 condition=models.Q(is_default=True),
-                name='unique_address_for_user',
-                violation_error_message='هر کاربر فقط یک آدرس پیشفرض دارد.!!',
-            )
+                name='unique_default_address_per_user',
+                violation_error_message=(
+                    'هر کاربر فقط می‌تواند یک آدرس پیش‌فرض داشته باشد.'
+                ),
+            ),
         ]
 
     def clean(self) -> None:
-        if (self.province_id and self.city_id
-                and self.city.province_id != self.province_id):
+        super().clean()
+
+        if (
+                self.province_id
+                and self.city_id
+                and self.city.province_id != self.province_id
+        ):
             raise ValidationError({
                 'city': 'شهر انتخاب‌شده متعلق به استان انتخاب‌شده نیست.',
             })
 
     def __str__(self) -> str:
-        return self.body
+        return f'{self.city} - {self.body}'
