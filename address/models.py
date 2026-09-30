@@ -91,17 +91,6 @@ class Address(models.Model):
         verbose_name = 'آدرس'
         verbose_name_plural = 'آدرس‌ها'
 
-        constraints = [
-            models.UniqueConstraint(
-                fields=('user',),
-                condition=models.Q(is_default=True),
-                name='unique_default_address_per_user',
-                violation_error_message=(
-                    'هر کاربر فقط می‌تواند یک آدرس پیش‌فرض داشته باشد.'
-                ),
-            ),
-        ]
-
     def clean(self):
         super().clean()
 
