@@ -18,12 +18,13 @@ class UserAdmin(BaseUserAdmin):
     form = forms.UserChangeForm
     add_form = forms.UserCreationForm
 
-    list_display = ('__str__', 'first_name', 'role', 'is_active')
-    list_filter = ()
-    search_fields = ()
+    list_display = ('phone_number', 'first_name', 'last_name', 'role', 'is_active')
+    list_filter = ('is_active', 'role', 'is_superuser', 'is_staff', 'is_active')
+    search_fields = ('phone_number', 'first_name', 'last_name')
     ordering = ('-date_joined',)
     empty_value_display = "-empty-"
     readonly_fields = ('date_joined', 'last_login')
+    sortable_by = ('role', 'is_active', 'first_name', 'last_name')
 
     add_fieldsets = [
         (None, {
