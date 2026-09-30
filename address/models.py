@@ -102,17 +102,33 @@ class Address(models.Model):
             ),
         ]
 
-    def clean(self) -> None:
+    def clean(self):
         super().clean()
+
+        errors = {}
 
         if (
                 self.province_id
                 and self.city_id
                 and self.city.province_id != self.province_id
         ):
-            raise ValidationError({
-                'city': 'شهر انتخاب‌شده متعلق به استان انتخاب‌شده نیست.',
-            })
+            errors['city'] = (
+                'شهر انتخاب‌شده متعلق به استان انتخاب‌شده نیست.'
+            )
+
+        if self.is_default and self.user_id:
+            exists = Address.objects.filter(
+                user_id=self.user_id,
+                is_default=True,
+            ).exclude(pk=self.pk).exists()
+
+            if exists:
+                errors['is_default'] = (
+                    'این کاربر قبلاً یک آدرس پیش‌فرض دارد.'
+                )
+
+        if errors:
+            raise ValidationError(errors)
 
     def __str__(self) -> str:
         return f'{self.city} - {self.body}'
