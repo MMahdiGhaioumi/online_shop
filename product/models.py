@@ -180,13 +180,21 @@ class ProductImage(models.Model):
         verbose_name = 'نگاره کالا'
         verbose_name_plural = 'نگاره‌های کالا'
 
-        constraints = [
-            models.UniqueConstraint(
-                fields=('product',),
-                condition=models.Q(is_default=True),
-                name='unique_default_image_per_product',
-            ),
-        ]
+    def clean(self):
+        super().clean()
+
+        if self.is_default and self.product_id:
+            exists = ProductImage.objects.filter(
+                product_id=self.product_id,
+                is_default=True,
+            ).exclude(pk=self.pk).exists()
+
+            if exists:
+                raise ValidationError({
+                    'is_default': (
+                        'این کالا قبلاً یک تصویر پیش‌فرض دارد.'
+                    )
+                })
 
     def __str__(self) -> str:
         return self.product.name
