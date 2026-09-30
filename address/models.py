@@ -39,6 +39,7 @@ class City(models.Model):
             models.UniqueConstraint(
                 fields=['name', 'province'],
                 name='unique_city_for_province',
+                violation_error_message='این شهر قبلاً در این استان ثبت شده است.',
             )
         ]
 
@@ -84,6 +85,7 @@ class Address(models.Model):
                 fields=('user',),
                 condition=models.Q(is_default=True),
                 name='unique_address_for_user',
+                violation_error_message='هر کاربر فقط یک آدرس پیشفرض دارد.!!',
             )
         ]
 
