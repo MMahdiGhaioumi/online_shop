@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 from . import models
 from . import forms
 
@@ -68,3 +68,4 @@ class UserAdmin(BaseUserAdmin):
 
 my_admin_site.register(models.User, UserAdmin)
 my_admin_site.register(Group)
+my_admin_site.register(Permission)
